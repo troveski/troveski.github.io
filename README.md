@@ -1,43 +1,46 @@
 # troveski.github.io
 
-Meu blog pessoal, no estilo minimalista dos ensaios do Paul Graham.
-Hospedado de graça no GitHub Pages em **https://troveski.github.io**.
+*Meditations* — a personal blog of short reflections on modern life,
+in the minimalist spirit of Paul Graham's essays.
+Hosted for free on GitHub Pages at **https://troveski.github.io**.
 
-## Estrutura
+## Structure
 
 ```
-index.html        -> página inicial (lista de posts)
-sobre.html        -> página "sobre"
-style.css         -> todo o visual do site
-posts/            -> cada post é um arquivo .html aqui dentro
-.nojekyll         -> diz ao GitHub para servir o HTML como está
+index.html        -> home page (list of writing)
+about.html        -> the "about" page
+style.css         -> all the styling
+posts/            -> each piece is one .html file in here
+.nojekyll         -> tells GitHub to serve the HTML as-is
 ```
 
-## Como escrever um post novo
+## How to write a new piece
 
-1. Copie `posts/o-comeco.html` e renomeie (ex: `posts/minha-ideia.html`).
-   Use só letras minúsculas e hífens no nome do arquivo.
-2. Abra o arquivo novo e troque o `<title>`, o `<h1>`, a data e o texto.
-3. Abra `index.html` e adicione uma linha no topo da lista `<ul class="posts">`:
+1. Copy `posts/on-attention.html` and rename it
+   (e.g. `posts/on-solitude.html`). Use lowercase and hyphens.
+2. Open the new file and change the `<title>`, the `<h1>`, the date,
+   and the text.
+3. Open `index.html` and add a line at the top of the
+   `<ul class="posts">` list:
 
    ```html
    <li>
      <span class="data-lista">Jul 2026</span>
-     <a href="posts/minha-ideia.html">Título do post</a>
+     <a href="posts/on-solitude.html">On Solitude</a>
    </li>
    ```
 
-4. Publique as mudanças:
+4. Publish:
 
    ```bash
    git add .
-   git commit -m "novo post: minha ideia"
+   git commit -m "new piece: on solitude"
    git push
    ```
 
-   Em ~1 minuto o site atualiza sozinho.
+   The site updates itself in about a minute.
 
-## Ver o site no seu computador antes de publicar
+## Preview locally
 
-É só abrir o `index.html` no navegador (clicar duas vezes nele).
-Nenhum servidor é necessário.
+Just open `index.html` in your browser (double-click it).
+No server needed.
