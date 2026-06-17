@@ -1,51 +1,50 @@
-/* ---------------------------------------------------------------
-   Estilo minimalista inspirado nos ensaios do Paul Graham.
-   Coluna estreita, fonte serifada, foco total no texto.
----------------------------------------------------------------- */
+@import url('https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap');
 
 :root {
-  --largura: 580px;
-  --texto: #222;
-  --suave: #666;
-  --link: #1a1a8c;
-  --fundo: #fdfdfb;
+  --largura: 610px;
+  --texto: #1c1917;
+  --suave: #7a6f66;
+  --link: #2b4c8c;
+  --fundo: #f8f5ee;
+  --borda: #ddd8ce;
 }
 
 * { box-sizing: border-box; }
-
 html { -webkit-text-size-adjust: 100%; }
 
 body {
-  font-family: Georgia, "Times New Roman", serif;
-  font-size: 18px;
-  line-height: 1.6;
+  font-family: 'EB Garamond', Georgia, 'Times New Roman', serif;
+  font-size: 19px;
+  line-height: 1.65;
   color: var(--texto);
   background: var(--fundo);
   margin: 0;
   padding: 0 20px;
 }
 
-/* container central estreito */
 .wrap {
   max-width: var(--largura);
   margin: 0 auto;
-  padding: 60px 0 120px;
+  padding: 64px 0 120px;
 }
 
-/* cabeçalho do site */
+/* ---- header ---- */
 header.site {
-  margin-bottom: 50px;
+  margin-bottom: 48px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--borda);
 }
 
 header.site a.nome {
-  font-size: 22px;
-  font-weight: bold;
+  font-size: 24px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
   color: var(--texto);
   text-decoration: none;
 }
 
 header.site nav {
-  margin-top: 6px;
+  margin-top: 7px;
   font-size: 15px;
 }
 
@@ -53,17 +52,19 @@ header.site nav a {
   color: var(--suave);
   text-decoration: none;
   margin-right: 14px;
+  font-style: italic;
 }
 
 header.site nav a:hover { color: var(--link); }
 
-/* links */
+/* ---- links ---- */
 a { color: var(--link); }
 a:hover { text-decoration: underline; }
 
-/* títulos */
+/* ---- títulos ---- */
 h1 {
-  font-size: 28px;
+  font-size: 30px;
+  font-weight: 500;
   line-height: 1.25;
   margin: 0 0 8px;
 }
@@ -72,19 +73,20 @@ h2 { font-size: 22px; margin-top: 40px; }
 
 .data {
   color: var(--suave);
-  font-size: 15px;
+  font-size: 16px;
   font-style: italic;
   margin-bottom: 36px;
 }
 
-/* frase de abertura na home */
+/* ---- tagline na home ---- */
 .tagline {
   color: var(--suave);
   font-style: italic;
-  margin: -10px 0 36px;
+  margin: -10px 0 38px;
+  font-size: 17px;
 }
 
-/* lista de posts na home */
+/* ---- lista de posts ---- */
 ul.posts {
   list-style: none;
   padding: 0;
@@ -100,49 +102,51 @@ ul.posts li {
 ul.posts li .data-lista {
   color: var(--suave);
   font-size: 15px;
+  font-style: italic;
   white-space: nowrap;
   min-width: 95px;
 }
 
-ul.posts li a {
-  text-decoration: none;
-}
+ul.posts li a { text-decoration: none; }
 ul.posts li a:hover { text-decoration: underline; }
 
-/* corpo do post */
-article p { margin: 0 0 20px; }
+/* ---- corpo do post ---- */
+article p { margin: 0 0 22px; }
 
 article blockquote {
-  border-left: 3px solid #ddd;
-  margin: 0 0 20px;
-  padding-left: 18px;
+  border-left: 2px solid var(--borda);
+  margin: 0 0 22px;
+  padding-left: 20px;
   color: var(--suave);
   font-style: italic;
 }
 
 article code {
   font-family: "SF Mono", Menlo, Consolas, monospace;
-  font-size: 0.85em;
-  background: #f0f0ec;
+  font-size: 0.84em;
+  background: #efe9dc;
   padding: 1px 5px;
   border-radius: 3px;
 }
 
-/* rodapé / voltar */
+/* ---- link de voltar ---- */
 .voltar {
-  margin-top: 60px;
+  margin-top: 56px;
   font-size: 15px;
+  font-style: italic;
 }
 
+/* ---- footer ---- */
 footer.site {
   margin-top: 80px;
-  padding-top: 24px;
-  border-top: 1px solid #eee;
+  padding-top: 22px;
+  border-top: 1px solid var(--borda);
   color: var(--suave);
   font-size: 14px;
+  font-style: italic;
 }
 
-@media (max-width: 620px) {
-  body { font-size: 17px; }
+@media (max-width: 640px) {
+  body { font-size: 18px; }
   ul.posts li { flex-direction: column; gap: 2px; }
 }
