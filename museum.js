@@ -366,7 +366,10 @@ function makeSignageTexture() {
 
 const player = {
   pos: new THREE.Vector3(ROOMS[0].x, 1.7, ROOMS[0].z),
-  yaw: 0,
+  // Face west (toward the "The Love Museum" entrance sign) on spawn,
+  // instead of north toward paintings #1/#2 — that sign should be the
+  // first thing you see when you hit Play.
+  yaw: Math.PI / 2,
   pitch: 0,
   height: 1.7,
   radius: 0.35,
