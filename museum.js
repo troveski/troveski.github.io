@@ -166,14 +166,29 @@ function wallInfo(room, wall) {
   }
 }
 
+// Paintings are sized to fit inside a fixed bounding box so photos of
+// different shapes (portrait, landscape) keep their real aspect ratio
+// without ever getting wide/tall enough to collide with a neighbor on
+// the same wall. MAX_W/MAX_H is that box; the photo's true aspect
+// ratio (from paintings.js) picks whichever dimension is the limiting
+// one.
+const MAX_W = 2.2, MAX_H = 1.9;
+
 function buildPainting(p, group) {
   const room = ROOMS[p.room];
   const info = wallInfo(room, p.wall);
-  const pw = 2.2, ph = 1.6, depth = 0.08;
-  const eyeY = 2.4;
+  const depth = 0.08;
+  const eyeY = 2.3;
+
+  const aspect = p.aspect || (MAX_W / MAX_H);
+  let pw = MAX_W, ph = MAX_W / aspect;
+  if (ph > MAX_H) { ph = MAX_H; pw = MAX_H * aspect; }
 
   const along = info.along;
-  const dist = p.offset * (info.length / 2 - pw / 2 - 0.6);
+  // Spacing between paintings on the same wall is based on the fixed
+  // bounding box (MAX_W), not the photo's actual width, so neighbors
+  // never overlap regardless of aspect ratio.
+  const dist = p.offset * (info.length / 2 - MAX_W / 2 - 0.6);
 
   const x = info.center[0] + along[0] * dist;
   const z = info.center[2] + along[2] * dist;
