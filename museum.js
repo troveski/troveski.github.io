@@ -170,7 +170,72 @@ function buildRoom(cx, cz, doors, group) {
     }
   }
 
+  // A potted plant in each corner, tucked in from the walls.
+  const inset = 1.5;
+  for (const sx of [-1, 1]) {
+    for (const sz of [-1, 1]) {
+      addPlant(cx + sx * (hw - inset), cz + sz * (hd - inset), group);
+    }
+  }
+
   addRoomLight(cx, h - 0.5, cz);
+}
+
+// ---- Potted plants ----------------------------------------------------
+
+const potMat = new THREE.MeshStandardMaterial({ color: 0x8a4a32, roughness: 0.8 });
+const soilMat = new THREE.MeshStandardMaterial({ color: 0x2b1d14, roughness: 1 });
+const leafMats = [
+  new THREE.MeshStandardMaterial({ color: 0x3f6b35, roughness: 0.85, side: THREE.DoubleSide }),
+  new THREE.MeshStandardMaterial({ color: 0x4f7d3c, roughness: 0.85, side: THREE.DoubleSide }),
+  new THREE.MeshStandardMaterial({ color: 0x355c2e, roughness: 0.85, side: THREE.DoubleSide }),
+];
+
+// A terracotta pot with a spray of leaves fanning out of it. Leaves are
+// flat cones, tilted outward at varied angles so no two plants read as
+// identical copies.
+function addPlant(x, z, group) {
+  const plant = new THREE.Group();
+  plant.position.set(x, 0, z);
+
+  const potH = 0.55, potTop = 0.3, potBottom = 0.22;
+  const pot = new THREE.Mesh(
+    new THREE.CylinderGeometry(potTop, potBottom, potH, 12),
+    potMat
+  );
+  pot.position.y = potH / 2;
+  pot.castShadow = true;
+  pot.receiveShadow = true;
+  plant.add(pot);
+
+  // Soil disc just below the rim
+  const soil = new THREE.Mesh(new THREE.CircleGeometry(potTop * 0.92, 12), soilMat);
+  soil.rotation.x = -Math.PI / 2;
+  soil.position.y = potH - 0.04;
+  plant.add(soil);
+
+  // Leaves fanning up and out
+  const leafCount = 7 + Math.floor(Math.random() * 4);
+  for (let i = 0; i < leafCount; i++) {
+    const len = 0.7 + Math.random() * 0.55;
+    const leaf = new THREE.Mesh(
+      new THREE.ConeGeometry(0.11, len, 4, 1, true),
+      leafMats[i % leafMats.length]
+    );
+    const angle = (i / leafCount) * Math.PI * 2 + Math.random() * 0.4;
+    const tilt = 0.35 + Math.random() * 0.5;
+    leaf.position.set(
+      Math.cos(angle) * 0.12,
+      potH + len / 2 - 0.05,
+      Math.sin(angle) * 0.12
+    );
+    leaf.rotation.set(Math.sin(angle) * tilt, angle, -Math.cos(angle) * tilt);
+    leaf.castShadow = true;
+    plant.add(leaf);
+  }
+
+  group.add(plant);
+  addWallCollider(x, potH / 2, z, potTop * 2, potH, potTop * 2);
 }
 
 // ---- Painting builder ------------------------------------------------
