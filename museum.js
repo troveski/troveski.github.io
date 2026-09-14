@@ -1,7 +1,7 @@
 // ---------------------------------------------------------------
 // Museum — first-person walkthrough built with Three.js.
 //
-// Layout: one floor, 4 rooms in a row (A→B→C→D), connected by
+// Layout: one floor, 5 rooms in a row (A→B→C→D→E), connected by
 // doorways. Numbered paintings hang on the walls (see paintings.js).
 // Everything is placeholder geometry — no textures needed to test
 // the layout and movement.
@@ -15,12 +15,13 @@ const ROOM_SIZE = { w: 14, d: 14, h: 5 };
 const WALL_T = 0.3;
 const DOOR_W = 3.2;
 
-// Room centers, one row: A, B, C, D (indices 0-3).
+// Room centers, one row: A, B, C, D, E (indices 0-4).
 const ROOMS = [
-  { x: -21, z: 0 }, // room A
-  { x: -7,  z: 0 }, // room B
-  { x: 7,   z: 0 }, // room C
-  { x: 21,  z: 0 }, // room D
+  { x: -28, z: 0 }, // room A
+  { x: -14, z: 0 }, // room B
+  { x: 0,   z: 0 }, // room C
+  { x: 14,  z: 0 }, // room D
+  { x: 28,  z: 0 }, // room E
 ];
 
 // ---- Renderer / scene / camera ----------------------------------
