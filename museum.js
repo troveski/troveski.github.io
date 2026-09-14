@@ -1,33 +1,33 @@
 // ---------------------------------------------------------------
 // Museum — first-person walkthrough built with Three.js.
 //
-// Layout: 2 floors, 2 rooms each, connected by doorways and a ramp
-// between floors. Numbered paintings hang on the walls (see
-// paintings.js). Everything is placeholder geometry — no textures
-// needed to test the layout and movement.
+// Layout: one floor, 4 rooms in a row (A→B→C→D), connected by
+// doorways. Numbered paintings hang on the walls (see paintings.js).
+// Everything is placeholder geometry — no textures needed to test
+// the layout and movement.
 // ---------------------------------------------------------------
 
 // ---- Room layout ------------------------------------------------
-// Each room is a box in world space. Rooms are connected by gaps
-// ("doorways") left open in shared walls.
+// Each room is a box in world space, laid out side by side on the x
+// axis, connected by a doorway in the shared wall between neighbors.
 
 const ROOM_SIZE = { w: 14, d: 14, h: 5 };
 const WALL_T = 0.3;
 const DOOR_W = 3.2;
 
-// Room centers per floor. Room 0 and room 1 sit side by side on the
-// x axis, connected by a doorway in the wall between them.
+// Room centers, one row: A, B, C, D (indices 0-3).
 const ROOMS = [
-  { x: -8, z: 0 }, // room 0
-  { x: 8,  z: 0 }, // room 1
+  { x: -21, z: 0 }, // room A
+  { x: -7,  z: 0 }, // room B
+  { x: 7,   z: 0 }, // room C
+  { x: 21,  z: 0 }, // room D
 ];
-const FLOOR_HEIGHT = 6;
 
 // ---- Renderer / scene / camera ----------------------------------
 
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0xdcd6c8);
-scene.fog = new THREE.Fog(0xdcd6c8, 18, 40);
+scene.fog = new THREE.Fog(0xdcd6c8, 18, 46);
 
 const camera = new THREE.PerspectiveCamera(
   70,
@@ -66,54 +66,48 @@ function addRoomLight(x, y, z) {
 const floorMat = new THREE.MeshStandardMaterial({ color: 0xb9ac8f, roughness: 0.9 });
 const ceilingMat = new THREE.MeshStandardMaterial({ color: 0xf1ece0, roughness: 1 });
 const wallMat = new THREE.MeshStandardMaterial({ color: 0xf4f0e6, roughness: 0.95 });
-const trimMat = new THREE.MeshStandardMaterial({ color: 0x8c7b5f, roughness: 0.8 });
 
 // ---- Collision boxes (AABB) ---------------------------------------
-// Every solid wall segment registers a box here; the player capsule
-// is tested against these each frame.
+// Walls block horizontal movement; the floor doesn't need a collider
+// since the player always walks at a fixed height (y = player.height).
 
-// Walls block horizontal movement; floor/ceiling slabs don't (vertical
-// position is handled separately by groundHeightAt).
 let wallColliders = [];
 
 function addWallCollider(x, y, z, w, h, d) {
-  const box = {
+  wallColliders.push({
     minX: x - w / 2, maxX: x + w / 2,
     minY: y - h / 2, maxY: y + h / 2,
     minZ: z - d / 2, maxZ: z + d / 2,
-  };
-  wallColliders.push(box);
+  });
 }
 
 // ---- Room builder ---------------------------------------------------
 //
-// Builds a rectangular room centered at (cx, floorY, cz). `doors` is a
-// map of which walls have a doorway gap in the middle:
+// Builds a rectangular room centered at (cx, 0, cz). `doors` is a map
+// of which walls have a doorway gap in the middle:
 // { north, south, east, west } -> boolean
 
-function buildRoom(cx, floorY, cz, doors, group) {
+function buildRoom(cx, cz, doors, group) {
   const { w, d, h } = ROOM_SIZE;
   const hw = w / 2, hd = d / 2;
 
   // Floor
   const floor = new THREE.Mesh(new THREE.BoxGeometry(w, WALL_T, d), floorMat);
-  floor.position.set(cx, floorY - WALL_T / 2, cz);
+  floor.position.set(cx, -WALL_T / 2, cz);
   floor.receiveShadow = true;
   group.add(floor);
-  // No collider for the floor slab itself — vertical position is
-  // handled by groundHeightAt(), not by AABB collision.
 
   // Ceiling
   const ceiling = new THREE.Mesh(new THREE.BoxGeometry(w, WALL_T, d), ceilingMat);
-  ceiling.position.set(cx, floorY + h, cz);
+  ceiling.position.set(cx, h, cz);
   group.add(ceiling);
 
   // Walls: north(-z) south(+z) west(-x) east(+x)
   const wallDefs = [
-    { key: "north", axis: "x", len: w, pos: [cx, floorY + h / 2, cz - hd] },
-    { key: "south", axis: "x", len: w, pos: [cx, floorY + h / 2, cz + hd] },
-    { key: "west",  axis: "z", len: d, pos: [cx - hw, floorY + h / 2, cz] },
-    { key: "east",  axis: "z", len: d, pos: [cx + hw, floorY + h / 2, cz] },
+    { key: "north", axis: "x", len: w, pos: [cx, h / 2, cz - hd] },
+    { key: "south", axis: "x", len: w, pos: [cx, h / 2, cz + hd] },
+    { key: "west",  axis: "z", len: d, pos: [cx - hw, h / 2, cz] },
+    { key: "east",  axis: "z", len: d, pos: [cx + hw, h / 2, cz] },
   ];
 
   for (const wd of wallDefs) {
@@ -151,7 +145,7 @@ function buildRoom(cx, floorY, cz, doors, group) {
     }
   }
 
-  addRoomLight(cx, floorY + h - 0.5, cz);
+  addRoomLight(cx, h - 0.5, cz);
 }
 
 // ---- Painting builder ------------------------------------------------
@@ -171,14 +165,13 @@ function wallInfo(room, wall) {
   }
 }
 
-function buildPainting(p, floorY, group) {
+function buildPainting(p, group) {
   const room = ROOMS[p.room];
   const info = wallInfo(room, p.wall);
   const pw = 2.2, ph = 1.6, depth = 0.08;
-  const eyeY = floorY + 2.4;
+  const eyeY = 2.4;
 
   const along = info.along;
-  const usable = info.length - DOOR_W - pw; // keep clear of doorway gap area roughly
   const dist = p.offset * (info.length / 2 - pw / 2 - 0.6);
 
   const x = info.center[0] + along[0] * dist;
@@ -240,73 +233,30 @@ function makeNumberSprite(number) {
   return sprite;
 }
 
-// ---- Build both floors -----------------------------------------------
+// ---- Build the row of rooms -------------------------------------------
 
 const allPaintingMeshes = [];
+const worldGroup = new THREE.Group();
+scene.add(worldGroup);
 
-for (let floor = 0; floor < 2; floor++) {
-  const floorY = floor * FLOOR_HEIGHT;
-  const group = new THREE.Group();
-  group.userData.floor = floor;
-  scene.add(group);
-
-  // Room 0's south wall has a gap for the ramp shaft that connects
-  // both floors (see "Stairs/ramp" below).
-  buildRoom(ROOMS[0].x, floorY, ROOMS[0].z, { east: true, south: true }, group);
-  buildRoom(ROOMS[1].x, floorY, ROOMS[1].z, { west: true }, group);
-
-  for (const p of PAINTINGS) {
-    if (p.floor !== floor) continue;
-    const mesh = buildPainting(p, floorY, group);
-    allPaintingMeshes.push(mesh);
-  }
+for (let i = 0; i < ROOMS.length; i++) {
+  const doors = {};
+  if (i > 0) doors.west = true;              // door back to the previous room
+  if (i < ROOMS.length - 1) doors.east = true; // door forward to the next room
+  buildRoom(ROOMS[i].x, ROOMS[i].z, doors, worldGroup);
 }
 
-// ---- Stairs/ramp between floors (in room 0) ---------------------------
-// A ramp that runs south from room 0's south wall doorway, climbing
-// from the ground floor up to floor 1. It's centered on the same x as
-// the doorway gap left in that wall (see buildRoom calls above) so the
-// player can walk straight from the ramp into the room above.
-
-{
-  const rampLen = 8, rampW = DOOR_W - 0.2;
-  const rampGroup = new THREE.Group();
-  scene.add(rampGroup);
-
-  const rampMat = new THREE.MeshStandardMaterial({ color: 0x9c8f76, roughness: 0.85 });
-  const ramp = new THREE.Mesh(new THREE.BoxGeometry(rampW, 0.3, rampLen), rampMat);
-  const cx = ROOMS[0].x; // aligned with the south-wall doorway gap
-  const cz = ROOMS[0].z + ROOM_SIZE.d / 2 + rampLen / 2;
-  ramp.position.set(cx, FLOOR_HEIGHT / 2, cz);
-  ramp.rotation.x = -Math.atan2(FLOOR_HEIGHT, rampLen);
-  ramp.receiveShadow = true;
-  rampGroup.add(ramp);
-
-  // Low walls along the ramp's sides so the player can't step off it
-  // mid-climb and fall through empty space.
-  const railMat = new THREE.MeshStandardMaterial({ color: 0x8c7b5f, roughness: 0.8 });
-  const railLen = Math.hypot(rampLen, FLOOR_HEIGHT);
-  for (const side of [-1, 1]) {
-    const rail = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.9, railLen), railMat);
-    rail.position.set(cx + side * (rampW / 2 + 0.05), FLOOR_HEIGHT / 2 + 0.3, cz);
-    rail.rotation.x = ramp.rotation.x;
-    rampGroup.add(rail);
-    addWallCollider(cx + side * (rampW / 2 + 0.05), FLOOR_HEIGHT / 2 + 2, cz, 0.15, 6, railLen);
-  }
-
-  window.__ramp = {
-    x: cx, z: cz, halfW: rampW / 2, halfLen: rampLen / 2,
-  };
+for (const p of PAINTINGS) {
+  const mesh = buildPainting(p, worldGroup);
+  allPaintingMeshes.push(mesh);
 }
 
 // ---- Player controller (pointer-lock FPS) -----------------------------
 
 const player = {
-  pos: new THREE.Vector3(ROOMS[0].x + 3, 1.7, ROOMS[0].z),
+  pos: new THREE.Vector3(ROOMS[0].x, 1.7, ROOMS[0].z),
   yaw: 0,
   pitch: 0,
-  velocityY: 0,
-  onGround: true,
   height: 1.7,
   radius: 0.35,
   speed: 4.5,
@@ -319,7 +269,6 @@ window.addEventListener("keydown", (e) => { keys[e.code] = true; });
 window.addEventListener("keyup", (e) => { keys[e.code] = false; });
 
 const blocker = document.getElementById("blocker");
-const crosshair = document.getElementById("crosshair");
 const infoPanel = document.getElementById("info-panel");
 
 document.getElementById("play-btn").addEventListener("click", () => {
@@ -381,23 +330,6 @@ function resolveCollisions(newPos) {
   return newPos;
 }
 
-function groundHeightAt(x, z) {
-  // Determine which floor's room the player is standing in, plus ramp.
-  const ramp = window.__ramp;
-  if (ramp) {
-    const localZ = z - ramp.z;
-    const localX = x - ramp.x;
-    if (Math.abs(localX) < ramp.halfW && Math.abs(localZ) < ramp.halfLen) {
-      const t = (localZ + ramp.halfLen) / (ramp.halfLen * 2); // 0..1 along ramp
-      return t * FLOOR_HEIGHT;
-    }
-  }
-  // Otherwise: ground floor is y=0, upper floor y=FLOOR_HEIGHT, choose
-  // upper if player is roughly above upper-floor height already (i.e.
-  // came from the ramp) — approximate with player's current pos.y.
-  return player.pos.y - player.height > FLOOR_HEIGHT - 1.5 ? FLOOR_HEIGHT : 0;
-}
-
 const clock = new THREE.Clock();
 
 function animate() {
@@ -426,9 +358,7 @@ function animate() {
     newPos.z += move.z;
 
     resolveCollisions(newPos);
-
-    const groundY = groundHeightAt(newPos.x, newPos.z) + player.height;
-    newPos.y = THREE.MathUtils.lerp(player.pos.y, groundY, Math.min(1, dt * 10));
+    newPos.y = player.height;
 
     player.pos.copy(newPos);
 
