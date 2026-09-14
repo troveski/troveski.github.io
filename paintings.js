@@ -28,7 +28,7 @@ const PAINTINGS = [
 
   // Room B — falling
   { id: 5, room: 1, wall: "north", offset: -0.5, title: "Getting Closer", image: "images/05.jpeg", aspect: 1.5 },
-  { id: 6, room: 1, wall: "north", offset:  0.5, title: "The First Trip", image: "images/06.jpeg", aspect: 1.3333 },
+  { id: 6, room: 1, wall: "north", offset:  0.5, title: "In Bloom", image: "images/06.jpeg", aspect: 1.3333 },
   { id: 7, room: 1, wall: "south", offset: -0.5, title: "Little Moments", image: "images/07.jpeg", aspect: 0.75 },
   { id: 8, room: 1, wall: "south", offset:  0.5, title: "Falling",        image: "images/08.jpeg", aspect: 0.75 },
 
