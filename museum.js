@@ -315,71 +315,97 @@ function buildPainting(p, group) {
   group.add(pgroup);
 
   // Brass wall plaque under the frame, engraved with the number and
-  // the title — the little card every museum piece gets.
+  // the title — the little card every museum piece gets. Tucked close
+  // under the frame so it reads as part of the piece.
   const plaque = makePlaque(p.id, p.title);
-  // Sits just proud of the wall surface, below the frame.
-  plaque.position.set(0, -ph / 2 - 0.34, depth / 2 + 0.012);
+  plaque.position.set(0, -ph / 2 - 0.22, depth / 2 + 0.008);
   pgroup.add(plaque);
 
   return pgroup;
 }
 
-const plaqueMat = new THREE.MeshStandardMaterial({
-  color: 0xb08d3f,
-  roughness: 0.4,
-  metalness: 0.8,
-});
-
 // A small brass plate with the piece's number and title engraved on
-// it. Returns a group: the plate itself plus the engraved text.
+// it. The plate is emissive as well as lit: the painting spotlights
+// aim at the canvas, so an ordinary material would leave the plaque
+// sitting in shadow as a dull brown smudge.
 function makePlaque(number, title) {
-  const plaqueW = 0.72, plaqueH = 0.2, plaqueD = 0.025;
+  const plaqueW = 0.52, plaqueH = 0.135, plaqueD = 0.012;
 
+  // Generous resolution — the plate is small on screen but gets read
+  // up close, and a soft texture is what made the old one look cheap.
+  const scale = 4;
   const canvas = document.createElement("canvas");
-  canvas.width = 512;
-  canvas.height = 142;
+  canvas.width = 320 * scale;
+  canvas.height = 84 * scale;
   const ctx = canvas.getContext("2d");
+  ctx.scale(scale, scale);
+  const w = 320, h = 84;
 
-  // Brushed brass background with a darker engraved border
-  ctx.fillStyle = "#c2a052";
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-  ctx.strokeStyle = "#8a6f2e";
-  ctx.lineWidth = 4;
-  ctx.strokeRect(6, 6, canvas.width - 12, canvas.height - 12);
+  // Polished brass, brighter along the top edge as if catching light
+  const brass = ctx.createLinearGradient(0, 0, 0, h);
+  brass.addColorStop(0, "#e8cd86");
+  brass.addColorStop(0.45, "#c9a758");
+  brass.addColorStop(1, "#a8863d");
+  ctx.fillStyle = brass;
+  ctx.fillRect(0, 0, w, h);
 
-  // Engraved text — dark, as if cut into the metal
-  ctx.fillStyle = "#4a3a14";
+  // Thin engraved inner rule
+  ctx.strokeStyle = "rgba(90, 68, 20, 0.55)";
+  ctx.lineWidth = 1;
+  ctx.strokeRect(5.5, 5.5, w - 11, h - 11);
+
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
-  ctx.font = "bold 34px Georgia, serif";
-  ctx.fillText(String(number), canvas.width / 2, 46);
 
-  // Shrink the title until it fits the plate's width — titles range
-  // from "Us" to "Coming Together".
-  const maxTitleW = canvas.width - 48;
-  let titleSize = 30;
-  do {
+  // Engraved text: a light lower edge under dark letters sells the
+  // impression of the letters being cut into metal.
+  function engrave(text, font, y) {
+    ctx.font = font;
+    ctx.fillStyle = "rgba(255, 240, 200, 0.45)";
+    ctx.fillText(text, w / 2, y + 1);
+    ctx.fillStyle = "#463612";
+    ctx.fillText(text, w / 2, y);
+  }
+
+  engrave(String(number), "bold 21px Georgia, serif", 27);
+
+  // Shrink the title until it fits — titles range from "Us" to
+  // "Coming Together".
+  let titleSize = 19;
+  while (titleSize > 11) {
     ctx.font = `italic ${titleSize}px Georgia, serif`;
-    if (ctx.measureText(title).width <= maxTitleW) break;
-    titleSize -= 2;
-  } while (titleSize > 14);
-  ctx.fillText(title, canvas.width / 2, 96);
+    if (ctx.measureText(title).width <= w - 30) break;
+    titleSize -= 1;
+  }
+  engrave(title, `italic ${titleSize}px Georgia, serif`, 55);
+
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.anisotropy = renderer.capabilities.getMaxAnisotropy();
 
   const group = new THREE.Group();
 
+  const edgeMat = new THREE.MeshStandardMaterial({
+    color: 0xb8912f,
+    roughness: 0.3,
+    metalness: 0.9,
+    emissive: 0x2a1e06,
+  });
   const plate = new THREE.Mesh(
     new THREE.BoxGeometry(plaqueW, plaqueH, plaqueD),
-    plaqueMat
+    edgeMat
   );
   group.add(plate);
 
   const faceMat = new THREE.MeshStandardMaterial({
-    map: new THREE.CanvasTexture(canvas),
-    roughness: 0.4,
-    metalness: 0.6,
+    map: texture,
+    roughness: 0.3,
+    metalness: 0.45,
+    emissive: 0xffffff,
+    emissiveMap: texture,
+    emissiveIntensity: 0.32,
   });
   const face = new THREE.Mesh(new THREE.PlaneGeometry(plaqueW, plaqueH), faceMat);
-  face.position.z = plaqueD / 2 + 0.002;
+  face.position.z = plaqueD / 2 + 0.001;
   group.add(face);
 
   return group;
