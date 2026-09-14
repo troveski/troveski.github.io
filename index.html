@@ -3,41 +3,33 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Meditations — Álvaro Patricio</title>
-  <link rel="stylesheet" href="style.css">
+  <title>Museum — Álvaro Patricio</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="museum.css">
 </head>
 <body>
-  <div class="wrap">
 
-    <header class="site">
-      <a class="nome" href="index.html">Álvaro Patricio</a>
-      <nav>
-        <a href="index.html">meditations</a>
-        <a href="about.html">about</a>
-      </nav>
-    </header>
+  <div id="game"></div>
+  <div id="crosshair"></div>
+  <div id="info-panel"></div>
 
-    <p class="tagline">
-      Short reflections on living in modern times — by Álvaro Patricio.
-    </p>
+  <nav id="site-nav">
+    <a class="nome" href="index.html">Álvaro Patricio</a>
+    <a href="meditations/index.html">meditations</a>
+    <a href="meditations/about.html">about</a>
+  </nav>
 
-    <!-- To add a new piece: copy a <li> below, point it at the new
-         file in posts/, and edit the date and title. Newest on top. -->
-    <ul class="posts">
-      <li>
-        <span class="data-lista">Jun 2026</span>
-        <a href="posts/five-works.html">Five Works of Art I Keep Thinking About</a>
-      </li>
-      <li>
-        <span class="data-lista">Jun 2026</span>
-        <a href="posts/on-attention.html">On Attention</a>
-      </li>
-    </ul>
-
-    <footer class="site">
-      © 2026 Álvaro Patricio · built with plain HTML, hosted on GitHub Pages
-    </footer>
-
+  <div id="blocker">
+    <div class="panel">
+      <h1>The Museum</h1>
+      <p>Two floors, a few rooms, numbered paintings on the walls.</p>
+      <p>Click to enter and look around.</p>
+      <p class="keys">WASD / arrows to walk · mouse to look · Esc to pause</p>
+    </div>
   </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="paintings.js"></script>
+  <script src="museum.js"></script>
 </body>
 </html>

@@ -1,0 +1,129 @@
+@import url('https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap');
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow: hidden;
+  background: #dcd6c8;
+  font-family: 'EB Garamond', Georgia, serif;
+}
+
+#game {
+  position: fixed;
+  inset: 0;
+}
+
+#game canvas {
+  display: block;
+}
+
+/* ---- crosshair ---- */
+#crosshair {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  width: 6px;
+  height: 6px;
+  margin: -3px 0 0 -3px;
+  border-radius: 50%;
+  background: rgba(28, 25, 23, 0.6);
+  pointer-events: none;
+  z-index: 5;
+}
+
+/* ---- painting info panel ---- */
+#info-panel {
+  position: fixed;
+  bottom: 36px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: none;
+  background: rgba(248, 245, 238, 0.92);
+  border: 1px solid #ddd8ce;
+  color: #1c1917;
+  padding: 10px 20px;
+  font-size: 17px;
+  font-style: italic;
+  border-radius: 4px;
+  pointer-events: none;
+  z-index: 5;
+}
+
+/* ---- top nav (site identity, matches blog header) ---- */
+#site-nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  padding: 16px 22px;
+  z-index: 6;
+  pointer-events: none;
+}
+
+#site-nav a {
+  pointer-events: auto;
+  text-decoration: none;
+  color: #1c1917;
+  background: rgba(248, 245, 238, 0.85);
+  padding: 4px 10px;
+  border-radius: 3px;
+  font-size: 15px;
+}
+
+#site-nav a.nome {
+  font-weight: 500;
+  font-size: 17px;
+  letter-spacing: 0.03em;
+}
+
+#site-nav a:hover { text-decoration: underline; }
+
+/* ---- start / pause overlay ---- */
+#blocker {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(28, 25, 23, 0.55);
+  color: #f8f5ee;
+  text-align: center;
+  cursor: pointer;
+}
+
+#blocker .panel {
+  max-width: 480px;
+  padding: 0 24px;
+}
+
+#blocker h1 {
+  font-weight: 500;
+  font-size: 30px;
+  margin: 0 0 14px;
+}
+
+#blocker p {
+  font-size: 17px;
+  line-height: 1.6;
+  color: #e6e1d6;
+  margin: 0 0 8px;
+}
+
+#blocker .keys {
+  margin-top: 22px;
+  font-size: 15px;
+  font-style: italic;
+  color: #cfc7b4;
+}
+
+@media (max-width: 640px) {
+  #blocker h1 { font-size: 24px; }
+  #blocker p { font-size: 15px; }
+}
