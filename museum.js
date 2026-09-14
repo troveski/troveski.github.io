@@ -176,7 +176,12 @@ function buildRoom(cx, cz, doors, group) {
 // ---- Painting builder ------------------------------------------------
 
 const loader = new THREE.TextureLoader();
-const frameMat = new THREE.MeshStandardMaterial({ color: 0x3b2f22, roughness: 0.6 });
+// Gilded frames — metallic so the warm spotlights catch them.
+const frameMat = new THREE.MeshStandardMaterial({
+  color: 0xc9a227,
+  roughness: 0.35,
+  metalness: 0.85,
+});
 const placeholderMat = new THREE.MeshStandardMaterial({ color: 0xcfc7b4, roughness: 0.85 });
 
 function wallInfo(room, wall) {
@@ -244,32 +249,75 @@ function buildPainting(p, group) {
   pgroup.userData.painting = p;
   group.add(pgroup);
 
-  // Number label sprite (simple canvas texture)
-  const label = makeNumberSprite(p.id);
-  label.position.set(0, -ph / 2 - 0.28, depth / 2 + 0.01);
-  pgroup.add(label);
+  // Brass wall plaque under the frame, engraved with the number and
+  // the title — the little card every museum piece gets.
+  const plaque = makePlaque(p.id, p.title);
+  // Sits just proud of the wall surface, below the frame.
+  plaque.position.set(0, -ph / 2 - 0.34, depth / 2 + 0.012);
+  pgroup.add(plaque);
 
   return pgroup;
 }
 
-function makeNumberSprite(number) {
+const plaqueMat = new THREE.MeshStandardMaterial({
+  color: 0xb08d3f,
+  roughness: 0.4,
+  metalness: 0.8,
+});
+
+// A small brass plate with the piece's number and title engraved on
+// it. Returns a group: the plate itself plus the engraved text.
+function makePlaque(number, title) {
+  const plaqueW = 0.72, plaqueH = 0.2, plaqueD = 0.025;
+
   const canvas = document.createElement("canvas");
-  canvas.width = 96;
-  canvas.height = 48;
+  canvas.width = 512;
+  canvas.height = 142;
   const ctx = canvas.getContext("2d");
-  // No background plate — just a small gold number floating under
-  // the frame, like an engraved gallery plaque.
-  ctx.fillStyle = "#e8b96a";
-  ctx.font = "italic 26px Georgia, serif";
+
+  // Brushed brass background with a darker engraved border
+  ctx.fillStyle = "#c2a052";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.strokeStyle = "#8a6f2e";
+  ctx.lineWidth = 4;
+  ctx.strokeRect(6, 6, canvas.width - 12, canvas.height - 12);
+
+  // Engraved text — dark, as if cut into the metal
+  ctx.fillStyle = "#4a3a14";
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
-  ctx.fillText(String(number), canvas.width / 2, canvas.height / 2 + 1);
+  ctx.font = "bold 34px Georgia, serif";
+  ctx.fillText(String(number), canvas.width / 2, 46);
 
-  const texture = new THREE.CanvasTexture(canvas);
-  const mat = new THREE.SpriteMaterial({ map: texture, transparent: true });
-  const sprite = new THREE.Sprite(mat);
-  sprite.scale.set(0.34, 0.17, 1);
-  return sprite;
+  // Shrink the title until it fits the plate's width — titles range
+  // from "Us" to "Coming Together".
+  const maxTitleW = canvas.width - 48;
+  let titleSize = 30;
+  do {
+    ctx.font = `italic ${titleSize}px Georgia, serif`;
+    if (ctx.measureText(title).width <= maxTitleW) break;
+    titleSize -= 2;
+  } while (titleSize > 14);
+  ctx.fillText(title, canvas.width / 2, 96);
+
+  const group = new THREE.Group();
+
+  const plate = new THREE.Mesh(
+    new THREE.BoxGeometry(plaqueW, plaqueH, plaqueD),
+    plaqueMat
+  );
+  group.add(plate);
+
+  const faceMat = new THREE.MeshStandardMaterial({
+    map: new THREE.CanvasTexture(canvas),
+    roughness: 0.4,
+    metalness: 0.6,
+  });
+  const face = new THREE.Mesh(new THREE.PlaneGeometry(plaqueW, plaqueH), faceMat);
+  face.position.z = plaqueD / 2 + 0.002;
+  group.add(face);
+
+  return group;
 }
 
 // ---- Build the row of rooms -------------------------------------------
@@ -342,7 +390,13 @@ function makeSignageTexture() {
   const pz = info.center[2] + info.normal[2] * pull;
   const eyeY = 2.6;
 
-  addPaintingSpotlight(px, eyeY, pz, info.normal[0], info.normal[2]);
+  // Wider, stronger spot than the paintings get — the sign is much
+  // bigger, so a narrow cone would leave its gilded frame in the dark.
+  const signSpot = new THREE.SpotLight(0xffd9a8, 1.8, 14, Math.PI / 3.2, 0.7, 1.2);
+  signSpot.position.set(px + info.normal[0] * 3.4, eyeY + 1.4, pz + info.normal[2] * 3.4);
+  signSpot.target.position.set(px, eyeY, pz);
+  scene.add(signSpot);
+  scene.add(signSpot.target);
 
   const signGroup = new THREE.Group();
   signGroup.position.set(px, eyeY, pz);
