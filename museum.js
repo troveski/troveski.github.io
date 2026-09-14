@@ -322,7 +322,7 @@ const blocker = document.getElementById("blocker");
 const crosshair = document.getElementById("crosshair");
 const infoPanel = document.getElementById("info-panel");
 
-renderer.domElement.addEventListener("click", () => {
+document.getElementById("play-btn").addEventListener("click", () => {
   renderer.domElement.requestPointerLock();
 });
 

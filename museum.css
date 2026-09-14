@@ -123,6 +123,23 @@ html, body {
   color: #cfc7b4;
 }
 
+#play-btn {
+  margin-top: 10px;
+  padding: 10px 32px;
+  font-family: inherit;
+  font-size: 18px;
+  font-style: italic;
+  color: #1c1917;
+  background: #f8f5ee;
+  border: 1px solid #ddd8ce;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+#play-btn:hover {
+  background: #fff;
+}
+
 @media (max-width: 640px) {
   #blocker h1 { font-size: 24px; }
   #blocker p { font-size: 15px; }
