@@ -27,8 +27,8 @@ const ROOMS = [
 // ---- Renderer / scene / camera ----------------------------------
 
 const scene = new THREE.Scene();
-scene.background = new THREE.Color(0xdcd6c8);
-scene.fog = new THREE.Fog(0xdcd6c8, 18, 46);
+scene.background = new THREE.Color(0x2a1d18);
+scene.fog = new THREE.Fog(0x2a1d18, 16, 44);
 
 const camera = new THREE.PerspectiveCamera(
   70,
@@ -50,23 +50,38 @@ window.addEventListener("resize", () => {
 });
 
 // ---- Lighting -----------------------------------------------------
+// Warm, low, romantic — candlelit gallery rather than a bright white
+// cube. A soft warm ambient fill plus a low-intensity hemisphere, then
+// each room gets its own warm pool of light and each painting gets a
+// small focused "spotlight" pulling it out of the dimness.
 
-scene.add(new THREE.AmbientLight(0xffffff, 0.55));
+scene.add(new THREE.AmbientLight(0xffb98a, 0.28));
 
-const hemi = new THREE.HemisphereLight(0xf6f2e6, 0x37342c, 0.5);
+const hemi = new THREE.HemisphereLight(0x5c4632, 0x1a1210, 0.35);
 scene.add(hemi);
 
 function addRoomLight(x, y, z) {
-  const light = new THREE.PointLight(0xfff3d6, 0.9, 16, 2);
+  const light = new THREE.PointLight(0xffb066, 1.1, 17, 2.2);
   light.position.set(x, y, z);
   scene.add(light);
 }
 
+// A focused warm spotlight in front of a painting, like gallery
+// track-lighting picking it out of the room's dimness.
+function addPaintingSpotlight(px, py, pz, nx, nz) {
+  const spot = new THREE.SpotLight(0xffd9a8, 1.4, 6, Math.PI / 6, 0.6, 1.5);
+  spot.position.set(px + nx * 1.6, py + 1.1, pz + nz * 1.6);
+  spot.target.position.set(px, py, pz);
+  scene.add(spot);
+  scene.add(spot.target);
+}
+
 // ---- Materials ----------------------------------------------------
 
-const floorMat = new THREE.MeshStandardMaterial({ color: 0xb9ac8f, roughness: 0.9 });
-const ceilingMat = new THREE.MeshStandardMaterial({ color: 0xf1ece0, roughness: 1 });
-const wallMat = new THREE.MeshStandardMaterial({ color: 0xf4f0e6, roughness: 0.95 });
+const floorMat = new THREE.MeshStandardMaterial({ color: 0x5c4230, roughness: 0.85 });
+const ceilingMat = new THREE.MeshStandardMaterial({ color: 0x2e2119, roughness: 1 });
+const wallMat = new THREE.MeshStandardMaterial({ color: 0x4a352a, roughness: 0.9 });
+const carpetMat = new THREE.MeshStandardMaterial({ color: 0x7a1f1f, roughness: 0.95 });
 
 // ---- Collision boxes (AABB) ---------------------------------------
 // Walls block horizontal movement; the floor doesn't need a collider
@@ -97,6 +112,15 @@ function buildRoom(cx, cz, doors, group) {
   floor.position.set(cx, -WALL_T / 2, cz);
   floor.receiveShadow = true;
   group.add(floor);
+
+  // Red carpet runner down the center of the room, connecting each
+  // doorway — the classic "gallery walk" look.
+  const carpetW = DOOR_W - 0.4;
+  const carpet = new THREE.Mesh(new THREE.PlaneGeometry(w - WALL_T * 2, carpetW), carpetMat);
+  carpet.rotation.x = -Math.PI / 2;
+  carpet.position.set(cx, WALL_T / 2 + 0.01, cz);
+  carpet.receiveShadow = true;
+  group.add(carpet);
 
   // Ceiling
   const ceiling = new THREE.Mesh(new THREE.BoxGeometry(w, WALL_T, d), ceilingMat);
@@ -197,6 +221,8 @@ function buildPainting(p, group) {
   const pull = WALL_T / 2 + depth / 2 + 0.01;
   const px = x + nx * pull;
   const pz = z + nz * pull;
+
+  addPaintingSpotlight(px, eyeY, pz, nx, nz);
 
   const pgroup = new THREE.Group();
   pgroup.position.set(px, eyeY, pz);

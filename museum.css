@@ -7,7 +7,7 @@ html, body {
   padding: 0;
   height: 100%;
   overflow: hidden;
-  background: #dcd6c8;
+  background: #2a1d18;
   font-family: 'EB Garamond', Georgia, serif;
 }
 
@@ -29,7 +29,7 @@ html, body {
   height: 6px;
   margin: -3px 0 0 -3px;
   border-radius: 50%;
-  background: rgba(28, 25, 23, 0.6);
+  background: rgba(249, 232, 211, 0.75);
   pointer-events: none;
   z-index: 5;
 }
@@ -41,9 +41,9 @@ html, body {
   left: 50%;
   transform: translateX(-50%);
   display: none;
-  background: rgba(248, 245, 238, 0.92);
-  border: 1px solid #ddd8ce;
-  color: #1c1917;
+  background: rgba(42, 29, 24, 0.88);
+  border: 1px solid rgba(255, 217, 168, 0.3);
+  color: #f9e8d3;
   padding: 10px 20px;
   font-size: 17px;
   font-style: italic;
@@ -69,8 +69,8 @@ html, body {
 #site-nav a {
   pointer-events: auto;
   text-decoration: none;
-  color: #1c1917;
-  background: rgba(248, 245, 238, 0.85);
+  color: #f9e8d3;
+  background: rgba(42, 29, 24, 0.75);
   padding: 4px 10px;
   border-radius: 3px;
   font-size: 15px;
@@ -92,10 +92,16 @@ html, body {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(28, 25, 23, 0.55);
+  background: radial-gradient(ellipse at center, rgba(90, 40, 30, 0.55), rgba(20, 12, 10, 0.88));
   color: #f8f5ee;
   text-align: center;
   cursor: pointer;
+}
+
+#blocker .heart {
+  font-size: 22px;
+  margin-bottom: 10px;
+  opacity: 0.85;
 }
 
 #blocker .panel {
