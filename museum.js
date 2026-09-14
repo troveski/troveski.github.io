@@ -293,6 +293,75 @@ for (const p of PAINTINGS) {
   allPaintingMeshes.push(mesh);
 }
 
+// ---- Entrance signage: "The Love Museum" ------------------------------
+// Room A's west wall (the only wall not used for paintings — the door
+// out is on the east side) gets a big welcome sign: a heart and the
+// museum's name, so it's the first thing you see stepping in.
+
+function makeSignageTexture() {
+  const canvas = document.createElement("canvas");
+  canvas.width = 1024;
+  canvas.height = 640;
+  const ctx = canvas.getContext("2d");
+
+  // Warm parchment-on-wood background
+  ctx.fillStyle = "#3a2a20";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = "#f3e6d0";
+  const pad = 28;
+  ctx.fillRect(pad, pad, canvas.width - pad * 2, canvas.height - pad * 2);
+  ctx.strokeStyle = "#8c5a3a";
+  ctx.lineWidth = 6;
+  ctx.strokeRect(pad + 10, pad + 10, canvas.width - (pad + 10) * 2, canvas.height - (pad + 10) * 2);
+
+  // Big heart
+  const cx = canvas.width / 2, cy = 280;
+  ctx.fillStyle = "#a3283f";
+  ctx.font = "220px serif";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.fillText("♥", cx, cy);
+
+  // Title
+  ctx.fillStyle = "#2a1d18";
+  ctx.font = "italic 58px Georgia, 'EB Garamond', serif";
+  ctx.fillText("The Love Museum", cx, 470);
+
+  // Subtitle
+  ctx.font = "italic 30px Georgia, 'EB Garamond', serif";
+  ctx.fillStyle = "#6b4a36";
+  ctx.fillText("Álvaro & Anoucka", cx, 530);
+
+  return new THREE.CanvasTexture(canvas);
+}
+
+{
+  const room = ROOMS[0];
+  const info = wallInfo(room, "west");
+  const sw = 6.5, sh = sw * (640 / 1024); // matches the canvas's own aspect ratio
+  const depth = 0.08;
+  const pull = WALL_T / 2 + depth / 2 + 0.01;
+  const px = info.center[0] + info.normal[0] * pull;
+  const pz = info.center[2] + info.normal[2] * pull;
+  const eyeY = 2.6;
+
+  addPaintingSpotlight(px, eyeY, pz, info.normal[0], info.normal[2]);
+
+  const signGroup = new THREE.Group();
+  signGroup.position.set(px, eyeY, pz);
+  signGroup.lookAt(px + info.normal[0], eyeY, pz + info.normal[2]);
+
+  const frame = new THREE.Mesh(new THREE.BoxGeometry(sw + 0.2, sh + 0.2, depth), frameMat);
+  signGroup.add(frame);
+
+  const signMat = new THREE.MeshStandardMaterial({ map: makeSignageTexture(), roughness: 0.9 });
+  const sign = new THREE.Mesh(new THREE.PlaneGeometry(sw, sh), signMat);
+  sign.position.z = depth / 2 + 0.005;
+  signGroup.add(sign);
+
+  worldGroup.add(signGroup);
+}
+
 // ---- Player controller (pointer-lock FPS) -----------------------------
 
 const player = {
