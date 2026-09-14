@@ -254,24 +254,21 @@ function buildPainting(p, group) {
 
 function makeNumberSprite(number) {
   const canvas = document.createElement("canvas");
-  canvas.width = 128;
-  canvas.height = 64;
+  canvas.width = 96;
+  canvas.height = 48;
   const ctx = canvas.getContext("2d");
-  ctx.fillStyle = "#f4f0e6";
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-  ctx.strokeStyle = "#8c7b5f";
-  ctx.lineWidth = 3;
-  ctx.strokeRect(2, 2, canvas.width - 4, canvas.height - 4);
-  ctx.fillStyle = "#1c1917";
-  ctx.font = "bold 30px Georgia, serif";
+  // No background plate — just a small gold number floating under
+  // the frame, like an engraved gallery plaque.
+  ctx.fillStyle = "#e8b96a";
+  ctx.font = "italic 26px Georgia, serif";
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
-  ctx.fillText(String(number), canvas.width / 2, canvas.height / 2 + 2);
+  ctx.fillText(String(number), canvas.width / 2, canvas.height / 2 + 1);
 
   const texture = new THREE.CanvasTexture(canvas);
-  const mat = new THREE.SpriteMaterial({ map: texture });
+  const mat = new THREE.SpriteMaterial({ map: texture, transparent: true });
   const sprite = new THREE.Sprite(mat);
-  sprite.scale.set(0.6, 0.3, 1);
+  sprite.scale.set(0.34, 0.17, 1);
   return sprite;
 }
 
