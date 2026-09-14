@@ -103,9 +103,18 @@ html, body {
   padding: 0 24px;
 }
 
+#blocker .eyebrow {
+  font-size: 14px;
+  font-style: italic;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #cfc7b4;
+  margin: 0 0 6px;
+}
+
 #blocker h1 {
   font-weight: 500;
-  font-size: 30px;
+  font-size: 34px;
   margin: 0 0 14px;
 }
 
